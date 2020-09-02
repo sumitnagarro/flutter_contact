@@ -1,0 +1,57 @@
+import 'package:flutter_contact/models/Contact.dart';
+import 'package:equatable/equatable.dart';
+
+abstract class ContactsEvent extends Equatable {
+  const ContactsEvent();
+
+  @override
+  List<Object> get props => [];
+}
+
+class ContactListGet extends ContactsEvent {
+  final List<Contact> contacts;
+
+  const ContactListGet([this.contacts = const []]);
+  @override
+  List<Object> get props => [contacts];
+
+  @override
+  String toString() => 'ContactLoaded {contact: $contacts}';
+}
+
+class ContactLoadSuccess extends ContactsEvent {}
+
+class ContactAdded extends ContactsEvent {
+  final Contact contact;
+  const ContactAdded(this.contact);
+
+  @override
+  List<Object> get props => [contact];
+
+  @override
+  String toString() => 'ContactAdded {contact: $contact}';
+}
+
+class ContactUpdated extends ContactsEvent {
+  final Contact contact;
+  const ContactUpdated(this.contact);
+
+  @override
+  List<Object> get props => [contact];
+
+  @override
+  String toString() => 'ContactUpdated {contact: $contact}';
+}
+
+class ContactDeleted extends ContactsEvent {
+  final Contact contact;
+  const ContactDeleted(this.contact);
+
+  @override
+  List<Object> get props => [contact];
+
+  @override
+  String toString() => 'ContactDeleted {contact: $contact}';
+}
+
+class ContactFavorite extends ContactsEvent {}
