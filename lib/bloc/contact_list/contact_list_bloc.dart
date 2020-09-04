@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_contact/bloc/contact_list/contact_list_event.dart';
 import 'package:flutter_contact/bloc/contact_list/contact_list_state.dart';
 import 'package:flutter_contact/database/contact_repository.dart';
-import 'package:flutter_contact/models/Contact.dart';
+import 'package:flutter_contact/models/contact.dart';
 
 class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
   final ContactRepository contactsRepository;

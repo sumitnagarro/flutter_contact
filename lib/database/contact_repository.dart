@@ -1,6 +1,6 @@
 import 'package:flutter_contact/constant/constants.dart';
 import 'package:flutter_contact/database/database_helper.dart';
-import 'package:flutter_contact/models/Contact.dart';
+import 'package:flutter_contact/models/contact.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ContactRepository {

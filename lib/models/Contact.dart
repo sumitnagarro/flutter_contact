@@ -46,4 +46,23 @@ class Contact {
         "blocked": blocked,
         "landLine": landLine,
       };
+
+  //This will be used to update the contact
+  Contact copyWith(
+      {int contactId,
+      String name,
+      String image,
+      int isFavorite,
+      int mobileNumber,
+      int blocked,
+      int landLine}) {
+    return Contact(
+        contactId: contactId ?? this.contactId,
+        name: name ?? this.name,
+        image: image ?? this.image,
+        isFavorite: isFavorite ?? this.isFavorite,
+        mobileNumber: mobileNumber ?? this.mobileNumber,
+        blocked: blocked ?? this.blocked,
+        landLine: landLine ?? this.landLine);
+  }
 }

@@ -1,4 +1,4 @@
-import 'package:flutter_contact/models/Contact.dart';
+import 'package:flutter_contact/models/contact.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class ContactsEvent extends Equatable {
