@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_contact/bloc/contact_form/bloc.dart';
 import 'package:flutter_contact/bloc/contact_list/bloc.dart';
 import 'package:flutter_contact/models/contact.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class ContactDetail extends StatefulWidget {
   ContactDetail({Key key, int id}) : super(key: key);
@@ -20,6 +22,20 @@ class _ContactDetailState extends State<ContactDetail> {
 
   ContactFormBloc contactFormBloc;
 
+  //Picking image
+  File _image;
+  final picker = ImagePicker();
+  String path;
+  PickedFile imagePicked;
+  Future getImage() async {
+    imagePicked = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      path = imagePicked.path;
+      _image = File(imagePicked.path);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     contactListBloc = BlocProvider.of<ContactsListBloc>(context);
@@ -27,6 +43,7 @@ class _ContactDetailState extends State<ContactDetail> {
     return WillPopScope(
       onWillPop: () async {
         contactFormBloc.add(BackEvent());
+
         return true;
       },
       child: Scaffold(
@@ -55,10 +72,18 @@ class _ContactDetailState extends State<ContactDetail> {
                       padding: EdgeInsets.all(10),
                       child: Column(
                         children: <Widget>[
+                          RaisedButton(
+                            onPressed: getImage,
+                          ),
+                          Center(
+                            child: _image == null
+                                ? Text('No image selected')
+                                : Image.file(_image),
+                          ),
                           TextFormField(
                               keyboardType: TextInputType.emailAddress,
                               decoration: InputDecoration(
-                                labelText: 'Name',
+                                labelText: 'Name . Image path $path',
                               ),
                               initialValue: contact?.name ?? '',
                               onChanged: (value) {
