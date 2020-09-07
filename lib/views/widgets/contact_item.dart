@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contact/models/contact.dart';
@@ -17,9 +19,12 @@ class ContactItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Image img = Image.file(File(contact.image));
     return ListTile(
       onTap: onTap,
-      leading: Text('This is leading'),
+      leading: CircleAvatar(
+        backgroundImage: img.image,
+      ),
       title: Hero(
         tag: '${contact.contactId}__heroTag',
         child: Container(
