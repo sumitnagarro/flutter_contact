@@ -23,11 +23,9 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
       yield* _mapContactUpdatedToState(event);
     } else if (event is ContactDeleted) {
       yield* _mapContactDeletedToState(event);
+    } else if (event is ContactFavorite) {
+      yield* _mapContactFavorite(event);
     }
-
-    // else if (event is ContactFavorite) {
-    //   yield* _mapContactFavorite();
-    // }
   }
 
   Stream<ContactsState> _mapContactsLoadingState() async* {
@@ -61,57 +59,52 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
       await this.contactsRepository.insertContact(event.contact);
       final contacts = await this.contactsRepository.contacts();
       yield ContactsLoadSuccess(
-        //contacts.map(Contact.fromEntity).toList(),
         contacts,
       );
     } catch (_) {
       yield ContactsLoadFailure();
     }
-    // if (state is ContactsLoadSuccess) {
-    //   final List<Contact> updatedContacts =
-    //       List.from((state as ContactsLoadSuccess).contacts)
-    //         ..add(event.contact);
-    //   yield ContactsLoadSuccess(updatedContacts);
-    //   _saveContacts(updatedContacts);
-    // }
   }
 
+  //Updating the favourite value of contact
   Stream<ContactsState> _mapContactUpdatedToState(ContactUpdated event) async* {
-    if (state is ContactsLoadSuccess) {
-      final List<Contact> updatedContacts =
-          (state as ContactsLoadSuccess).contacts.map((contact) {
-        return contact.contactId == event.contact.contactId
-            ? event.contact
-            : contact;
-      }).toList();
-      yield ContactsLoadSuccess(updatedContacts);
-      _saveContacts(updatedContacts);
+    yield ContactLoadInProgress();
+    try {
+      await this.contactsRepository.updateContactFavourite(event.contact);
+      final contacts = await this.contactsRepository.contacts();
+      yield ContactsLoadSuccess(
+        contacts,
+      );
+    } catch (_) {
+      yield ContactsLoadFailure();
     }
   }
 
   Stream<ContactsState> _mapContactDeletedToState(ContactDeleted event) async* {
-    if (state is ContactsLoadSuccess) {
-      final updatedContacts = (state as ContactsLoadSuccess)
-          .contacts
-          .where((contact) => contact.contactId != event.contact.contactId)
-          .toList();
-      yield ContactsLoadSuccess(updatedContacts);
-      _saveContacts(updatedContacts);
+    yield ContactLoadInProgress();
+    try {
+      await this.contactsRepository.deleteContact(event.contact.contactId);
+      final contacts = await this.contactsRepository.contacts();
+      yield ContactsLoadSuccess(
+        contacts,
+      );
+    } catch (_) {
+      yield ContactsLoadFailure();
     }
   }
 
-  // Stream<ContactsState> _mapContactFavorite() async* {
-  //   if (state is ContactsLoadSuccess) {
-  //     final allComplete =
-  //         (state as ContactsLoadSuccess).Contacts.every((Contact) => Contact.complete);
-  //     final List<Contact> updatedContacts = (state as ContactsLoadSuccess)
-  //         .contacts
-  //         .map((Contact) => Contact.copyWith(complete: !allComplete))
-  //         .toList();
-  //     yield ContactsLoadSuccess(updatedContacts);
-  //     _saveContacts(updatedContacts);
-  //   }
-  // }
+  Stream<ContactsState> _mapContactFavorite(ContactFavorite event) async* {
+    yield ContactLoadInProgress();
+    try {
+      await this.contactsRepository.updateContactFavourite(event.contact);
+      final contacts = await this.contactsRepository.contacts();
+      yield ContactsLoadSuccess(
+        contacts,
+      );
+    } catch (_) {
+      yield ContactsLoadFailure();
+    }
+  }
 
   Future _saveContacts(List<Contact> contacts) {
     // return contactsRepository.insertContact(

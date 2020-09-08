@@ -1,9 +1,9 @@
 const String kCreateContactTable = "CREATE TABLE Contacts ("
     "contactId INTEGER PRIMARY KEY, "
     "name TEXT,"
-    "mobileNumber INTEGER,"
-    "landline INTEGER,"
+    "mobileNumber TEXT,"
+    "landLine TEXT,"
     "image TEXT,"
-    "isFavorite INTEGER,"
-    "blocked INTEGER"
+    "isFavorite INTEGER NULL,"
+    "blocked INTEGER NULL"
     ")";

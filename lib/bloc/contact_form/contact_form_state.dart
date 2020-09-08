@@ -21,6 +21,8 @@ class Loaded extends ContactFormState {
   Loaded({@required Contact contact}) : super(contact: contact);
 }
 
+//class PickImage extends ContactFormState {}
+
 class Success extends ContactFormState {
   Success({@required String successMessage}) : super(message: successMessage);
 }

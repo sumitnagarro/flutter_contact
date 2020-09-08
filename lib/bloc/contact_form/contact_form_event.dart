@@ -20,3 +20,10 @@ class CreateContact extends ContactFormEvent {
 class UpdateContact extends ContactFormEvent {
   UpdateContact({@required Contact contact}) : super(contact: contact);
 }
+
+class DeleteContact extends ContactFormEvent {
+  final Contact contact;
+  DeleteContact({@required this.contact}) : super(contact: contact);
+}
+
+class PickContactImage extends ContactFormEvent {}

@@ -27,17 +27,32 @@ class ContactFormBloc extends Bloc<ContactFormEvent, ContactFormState> {
     } else if (event is CreateContact) {
       try {
         await contactsRepository.insertContact(event.contact);
-        yield Success(successMessage: event.contact.name + ' created');
+        yield Success(successMessage: event.contact.name + ' created.');
       } catch (e) {
         yield Error(errorMessage: e.toString());
       }
     } else if (event is UpdateContact) {
       try {
         await contactsRepository.updateContact(event.contact);
-        yield Success(successMessage: event.contact.name + ' updated');
+        yield Success(successMessage: event.contact.name + ' updated.');
+      } catch (e) {
+        yield Error(errorMessage: e.toString());
+      }
+    } else if (event is DeleteContact) {
+      try {
+        await contactsRepository.deleteContact(event.contact.contactId);
+        yield Success(successMessage: event.contact.name + ' deleted.');
       } catch (e) {
         yield Error(errorMessage: e.toString());
       }
     }
+
+    //else if (event is PickContactImage) {
+    //   try {
+    //     await contactsRepository.updateContact(event.contact);
+    //     yield Success(successMessage: event.contact.name + ' updated');
+    //   } catch (e) {
+    //     yield Error(errorMessage: e.toString());
+    //   }
   }
 }

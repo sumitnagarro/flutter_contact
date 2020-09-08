@@ -32,10 +32,21 @@ class _MyHomePageState extends State<MyHomePage> {
     getsetData();
   }
 
-  void _incrementCounter() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ContactDetail()),
+  void addContact() {
+    Navigator.of(context).push(
+      MaterialPageRoute<ContactDetail>(
+        builder: (context) {
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<_ContactFormBloc.ContactFormBloc>.value(
+                value: userFormBloc..add(_ContactFormBloc.GetContact()),
+              ),
+              BlocProvider<ContactsListBloc>.value(value: contactsListBloc),
+            ],
+            child: ContactDetail(),
+          );
+        },
+      ),
     );
   }
 
@@ -67,17 +78,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         .add(ContactDeleted(contact));
                   },
                   onTap: () async {
-                    //! Working code
-                    // final removedTodo = await Navigator.of(context).push(
-                    //   MaterialPageRoute(
-                    //     builder: (_) {
-                    //       return ContactDetail(id: contact.contactId);
-                    //     },
-                    //   ),
-                    // );
-
-                    //? Trying code
-
                     Navigator.of(context).push(
                       MaterialPageRoute<ContactDetail>(
                         builder: (context) {
@@ -96,22 +96,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                       ),
                     );
-
-                    // if (removedTodo != null) {
-                    //   Scaffold.of(context).showSnackBar(DeleteTodoSnackBar(
-                    //     todo: todo,
-                    //     onUndo: () => BlocProvider.of<TodosBloc>(context)
-                    //         .add(TodoAdded(todo)),
-                    //     localizations: localizations,
-                    //   ));
-                    // }
-                    //},
                   },
-                  onFavouriteChanged: (_) {
+                  onFavouriteChanged: () {
                     BlocProvider.of<ContactsListBloc>(context).add(
                       ContactUpdated(
                           contact.copyWith(isFavorite: contact.isFavorite)),
                     );
+                  },
+                  onDelete: () {
+                    BlocProvider.of<ContactsListBloc>(context)
+                        .add(ContactDeleted(contact));
                   },
                 );
               },
@@ -135,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: addContact,
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ),

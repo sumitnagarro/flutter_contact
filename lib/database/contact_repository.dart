@@ -86,4 +86,19 @@ class ContactRepository {
       whereArgs: [contactId],
     );
   }
+
+  Future<void> updateContactFavourite(Contact contact) async {
+    // Get a reference to the database.
+    Database db = await databaseHelper.db;
+    contact.isFavorite = contact.isFavorite == 1 ? 0 : 1;
+    // Update the Contact from the database.
+    await db.update(
+      kContactTableName,
+      contact.toJson(),
+      // Use a `where` clause to delete a specific Contact.
+      where: "contactId = ?",
+      // Pass the Contact's contactId as a whereArg to prevent SQL injection.
+      whereArgs: [contact.contactId],
+    );
+  }
 }

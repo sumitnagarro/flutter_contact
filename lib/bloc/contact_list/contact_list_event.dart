@@ -54,4 +54,13 @@ class ContactDeleted extends ContactsEvent {
   String toString() => 'ContactDeleted {contact: $contact}';
 }
 
-class ContactFavorite extends ContactsEvent {}
+class ContactFavorite extends ContactsEvent {
+  final Contact contact;
+  const ContactFavorite(this.contact);
+
+  @override
+  List<Object> get props => [contact];
+
+  @override
+  String toString() => 'ContactDeleted {contact id: $contact}';
+}

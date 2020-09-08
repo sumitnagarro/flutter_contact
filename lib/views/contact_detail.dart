@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_contact/bloc/contact_form/bloc.dart';
 import 'package:flutter_contact/bloc/contact_list/bloc.dart';
 import 'package:flutter_contact/models/contact.dart';
+import 'package:flutter_contact/views/widgets/user_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -27,8 +28,36 @@ class _ContactDetailState extends State<ContactDetail> {
   final picker = ImagePicker();
   String path;
   PickedFile imagePicked;
-  Future getImage() async {
-    imagePicked = await picker.getImage(source: ImageSource.gallery);
+  Future getImage(BuildContext ctx) async {
+    ImageSource source;
+    await showDialog(
+        context: ctx,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("Pick Image"),
+            content: new Text("Take/Browse photo of person"),
+            actions: <Widget>[
+              // usually buttons at the bottom of the dialog
+              new FlatButton(
+                child: new Text("Camera"),
+                onPressed: () {
+                  source = ImageSource.camera;
+                  Navigator.of(context).pop();
+                },
+              ),
+              new FlatButton(
+                child: new Text("Gallary"),
+                onPressed: () {
+                  source = ImageSource.gallery;
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+
+    if (source == null) return;
+    imagePicked = await picker.getImage(source: source);
 
     setState(() {
       path = imagePicked.path;
@@ -40,112 +69,131 @@ class _ContactDetailState extends State<ContactDetail> {
   Widget build(BuildContext context) {
     contactListBloc = BlocProvider.of<ContactsListBloc>(context);
     contactFormBloc = BlocProvider.of<ContactFormBloc>(context);
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-          title: BlocBuilder<ContactFormBloc, ContactFormState>(
-        builder: (context, state) => Text(
-            (state.contact?.contactId == null ? 'Add' : 'Edit') + ' Contact'),
-      )),
-      body: Form(
-        key: _formKey,
-        child: Container(
-          constraints: BoxConstraints.expand(),
-          child: SingleChildScrollView(
-            child: BlocListener<ContactFormBloc, ContactFormState>(
-              listener: (context, state) {
-                contactListBloc.add(ContactListGet());
-              },
-              child: BlocBuilder<ContactFormBloc, ContactFormState>(
-                  builder: (context, state) {
-                if (state is Loaded) {
-                  Contact contact = state.contact?.contactId == null
-                      ? Contact()
-                      : state.contact;
-                  return Container(
-                    padding: EdgeInsets.all(10),
-                    child: Column(
-                      children: <Widget>[
-                        GestureDetector(
-                          child: Center(
-                            child: contact == null
-                                ? Text('No image selected')
-                                : CircleAvatar(
-                                    radius: 100,
-                                    backgroundImage:
-                                        Image.file(File(contact?.image)).image,
-                                  ),
+
+    return WillPopScope(
+      onWillPop: () async {
+        contactFormBloc.add(BackEvent());
+        return true;
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+            title: BlocBuilder<ContactFormBloc, ContactFormState>(
+          builder: (context, state) => Text(
+              (state.contact?.contactId == null ? 'Add' : 'Edit') + ' Contact'),
+        )),
+        body: Form(
+          key: _formKey,
+          child: Container(
+            constraints: BoxConstraints.expand(),
+            child: SingleChildScrollView(
+              child: BlocListener<ContactFormBloc, ContactFormState>(
+                listener: (context, state) {
+                  contactListBloc.add(ContactListGet());
+                },
+                child: BlocBuilder<ContactFormBloc, ContactFormState>(
+                    builder: (context, state) {
+                  if (state is Loaded) {
+                    Contact contact = state.contact?.contactId == null
+                        ? Contact()
+                        : state.contact;
+
+                    return Container(
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                        children: <Widget>[
+                          GestureDetector(
+                            child: Center(
+                                child: Hero(
+                              tag: '${contact.contactId}__heroTag',
+                              child: UserImage(
+                                contact: contact,
+                                radius: 100,
+                              ),
+                            )),
+                            onTap: () async {
+                              getImage(context);
+                            },
                           ),
-                          onTap: getImage,
-                        ),
-                        TextFormField(
-                            keyboardType: TextInputType.emailAddress,
+                          TextFormField(
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: InputDecoration(
+                                labelText: 'Name:',
+                              ),
+                              initialValue: contact?.name ?? '',
+                              onChanged: (value) {
+                                contact?.name = value;
+                              },
+                              validator: (value) {
+                                if (value.length < 1) {
+                                  return 'Name cannot be empty';
+                                }
+                                return null;
+                              }),
+                          TextFormField(
+                              keyboardType: TextInputType.phone,
+                              decoration: InputDecoration(
+                                labelText: 'Mobile number:',
+                              ),
+                              initialValue: contact?.mobileNumber ?? '',
+                              onChanged: (value) {
+                                contact?.mobileNumber = value;
+                              },
+                              validator: (value) {
+                                if (value.length < 1) {
+                                  return 'Mobile number cannot be empty';
+                                }
+                                return null;
+                              }),
+                          TextFormField(
+                            keyboardType: TextInputType.phone,
                             decoration: InputDecoration(
-                              labelText: 'Name:',
+                              labelText: 'Landline:',
                             ),
-                            initialValue: contact?.name ?? '',
+                            initialValue: contact?.landLine ?? '',
                             onChanged: (value) {
-                              contact?.name = value;
+                              contact?.landLine = value;
                             },
                             validator: (value) {
                               if (value.length < 1) {
-                                return 'Name cannot be empty';
+                                return 'Landline cannot be empty';
                               }
                               return null;
-                            }),
-                        TextFormField(
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: InputDecoration(
-                              labelText: 'Mobile number:',
-                            ),
-                            initialValue:
-                                contact?.mobileNumber.toString() ?? '',
-                            onChanged: (value) {
-                              contact?.mobileNumber = int.tryParse(value);
                             },
-                            validator: (value) {
-                              if (value.length < 1) {
-                                return 'Mobile number cannot be empty';
-                              }
-                              return null;
-                            }),
-                        TextFormField(
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            labelText: 'Landline:',
                           ),
-                          initialValue: contact?.mobileNumber.toString() ?? '',
-                          onChanged: (value) {
-                            contact?.mobileNumber = int.tryParse(value);
-                          },
-                          validator: (value) {
-                            if (value.length < 1) {
-                              return 'Landline cannot be empty';
-                            }
-                            return null;
-                          },
-                        ),
-                        RaisedButton(
-                          child: Text('Save'),
-                          onPressed: () {
-                            contact?.image = path ?? contact.image;
-                            if (_formKey.currentState.validate()) {
-                              contactFormBloc.add(contact?.contactId == null
-                                  ? CreateContact(contact: contact)
-                                  : UpdateContact(contact: contact));
-                            }
-                            Navigator.pop(context);
-                          },
-                        )
-                      ],
-                    ),
-                  );
-                }
-                if (state is Error) {
-                  return error(state.message);
-                }
-                return loading();
-              }),
+                          RaisedButton(
+                            child: Text('Save'),
+                            onPressed: () {
+                              contact?.image = path ?? contact.image;
+                              if (_formKey.currentState.validate()) {
+                                contactFormBloc.add(contact?.contactId == null
+                                    ? CreateContact(contact: contact)
+                                    : UpdateContact(contact: contact));
+                              }
+                              Navigator.pop(context);
+                            },
+                          ),
+                          RaisedButton(
+                            child: Text('Delete'),
+                            onPressed: () {
+                              if (_formKey.currentState.validate()) {
+                                contactFormBloc
+                                    .add(DeleteContact(contact: contact));
+                                contactFormBloc.add(BackEvent());
+                              }
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  if (state is Error) {
+                    return error(state.message);
+                  }
+                  return loading();
+                }),
+              ),
             ),
           ),
         ),

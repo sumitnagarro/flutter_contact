@@ -14,14 +14,14 @@ class Contact {
   String name;
   String image;
   int isFavorite;
-  int mobileNumber;
-  int landLine;
+  String mobileNumber;
+  String landLine;
   int blocked;
 
   Contact(
       {this.contactId,
       this.name,
-      this.image,
+      this.image = 'fromasset',
       this.isFavorite,
       this.mobileNumber,
       this.blocked,
@@ -53,9 +53,9 @@ class Contact {
       String name,
       String image,
       int isFavorite,
-      int mobileNumber,
+      String mobileNumber,
       int blocked,
-      int landLine}) {
+      String landLine}) {
     return Contact(
         contactId: contactId ?? this.contactId,
         name: name ?? this.name,

@@ -18,9 +18,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Contact',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.blueGrey,
       ),
       home: MultiBlocProvider(
         providers: [
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
             create: (context) => ContactFormBloc(ContactRepository()),
           ),
         ],
-        child: MyHomePage(title: 'Flutter Demo Home Page'),
+        child: MyHomePage(title: 'Contact'),
       ),
     );
   }
