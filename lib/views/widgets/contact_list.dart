@@ -12,12 +12,14 @@ class ContactList extends StatelessWidget {
       {Key key,
       @required this.userFormBloc,
       @required this.contactsListBloc,
-      @required this.contacts})
+      @required this.contacts,
+      this.fromFavourite})
       : super(key: key);
 
   final _ContactFormBloc.ContactFormBloc userFormBloc;
   final ContactsListBloc contactsListBloc;
   final List<Contact> contacts;
+  final bool fromFavourite;
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -45,7 +47,9 @@ class ContactList extends StatelessWidget {
                       BlocProvider<ContactsListBloc>.value(
                           value: contactsListBloc),
                     ],
-                    child: ContactDetail(),
+                    child: ContactDetail(
+                      fromFavourite: fromFavourite,
+                    ),
                   );
                 },
               ),
@@ -53,7 +57,11 @@ class ContactList extends StatelessWidget {
           },
           onFavouriteChanged: () {
             BlocProvider.of<ContactsListBloc>(context).add(
-              ContactUpdated(contact.copyWith(isFavorite: contact.isFavorite)),
+              ContactUpdated(
+                  contact.copyWith(
+                    isFavorite: contact.isFavorite,
+                  ),
+                  fromFavourite: fromFavourite),
             );
           },
           onDelete: () {

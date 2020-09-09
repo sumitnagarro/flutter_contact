@@ -10,8 +10,9 @@ abstract class ContactsEvent extends Equatable {
 
 class ContactListGet extends ContactsEvent {
   final List<Contact> contacts;
-
-  const ContactListGet([this.contacts = const []]);
+  //Adding bool from fromFavourite
+  final bool fromFavourite;
+  const ContactListGet(this.fromFavourite, [this.contacts = const []]);
   @override
   List<Object> get props => [contacts];
 
@@ -36,9 +37,9 @@ class ContactAdded extends ContactsEvent {
 
 class ContactUpdated extends ContactsEvent {
   final Contact contact;
-  //final bool favouritePage;
-  //const ContactUpdated(this.contact, this.favouritePage);
-  const ContactUpdated(this.contact);
+  final bool fromFavourite;
+  const ContactUpdated(this.contact, {this.fromFavourite});
+  //const ContactUpdated(this.contact);
 
   @override
   List<Object> get props => [contact];

@@ -8,14 +8,11 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
   final ContactRepository contactsRepository;
   ContactsListBloc(this.contactsRepository) : super(ContactLoadInProgress());
 
-  // @override
-  // ContactListState get initialState => ContactListState();
-
   @override
   Stream<ContactsState> mapEventToState(ContactsEvent event) async* {
     if (event is ContactListGet) {
-      yield* _mapContactsLoadingState();
-    } else if (event is ContactsLoadSuccess) {
+      yield* _mapContactsLoadingState(event);
+    } else if (event is ContactLoadSuccess) {
       yield* _mapContactsLoadedToState();
     } else if (event is ContactLoadFavourites) {
       yield* _mapContactsFavouriteLoadedToState();
@@ -30,14 +27,21 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
     }
   }
 
-  Stream<ContactsState> _mapContactsLoadingState() async* {
+  Stream<ContactsState> _mapContactsLoadingState(ContactListGet event) async* {
     yield ContactLoadInProgress();
     try {
-      final contacts = await this.contactsRepository.contacts();
-      yield ContactsLoadSuccess(
-        //contacts.map(Contact.fromEntity).toList(),
-        contacts,
-      );
+      // final contacts = await this.contactsRepository.contacts();
+      // yield ContactsLoadSuccess(contacts);
+      final contacts = event.fromFavourite
+          ? await this.contactsRepository.favouriteContacts()
+          : await this.contactsRepository.contacts();
+      //final contacts = await this.contactsRepository.contacts();
+
+      yield event.fromFavourite
+          ? ContactsFavouriteLoadSuccess(contacts)
+          : ContactsLoadSuccess(
+              contacts,
+            );
     } catch (_) {
       yield ContactsLoadFailure();
     }
@@ -46,10 +50,7 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
   Stream<ContactsState> _mapContactsLoadedToState() async* {
     try {
       final contacts = await this.contactsRepository.contacts();
-      yield ContactsLoadSuccess(
-        //contacts.map(Contact.fromEntity).toList(),
-        contacts,
-      );
+      yield ContactsLoadSuccess(contacts);
     } catch (_) {
       yield ContactsLoadFailure();
     }
@@ -58,10 +59,7 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
   Stream<ContactsState> _mapContactsFavouriteLoadedToState() async* {
     try {
       final contacts = await this.contactsRepository.favouriteContacts();
-      yield ContactsLoadSuccess(
-        //contacts.map(Contact.fromEntity).toList(),
-        contacts,
-      );
+      yield ContactsFavouriteLoadSuccess(contacts);
     } catch (_) {
       yield ContactsLoadFailure();
     }
@@ -85,14 +83,16 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
     yield ContactLoadInProgress();
     try {
       await this.contactsRepository.updateContactFavourite(event.contact);
-      // final contacts = event.favouritePage
-      //     ? await this.contactsRepository.favouriteContacts()
-      //     : await this.contactsRepository.contacts();
-      final contacts = await this.contactsRepository.contacts();
+      final contacts = event.fromFavourite
+          ? await this.contactsRepository.favouriteContacts()
+          : await this.contactsRepository.contacts();
+      //final contacts = await this.contactsRepository.contacts();
 
-      yield ContactsLoadSuccess(
-        contacts,
-      );
+      yield event.fromFavourite
+          ? ContactsFavouriteLoadSuccess(contacts)
+          : ContactsLoadSuccess(
+              contacts,
+            );
     } catch (_) {
       yield ContactsLoadFailure();
     }

@@ -4,7 +4,7 @@ import 'package:flutter_contact/bloc/bloc_observer.dart';
 import 'package:flutter_contact/bloc/contact_form/bloc.dart';
 
 import 'database/contact_repository.dart';
-import "views/contact_list.dart";
+import 'views/contact_list_page.dart';
 
 import 'bloc/contact_list/bloc.dart';
 
@@ -25,8 +25,8 @@ class MyApp extends StatelessWidget {
       home: MultiBlocProvider(
         providers: [
           BlocProvider<ContactsListBloc>(
-            create: (context) => ContactsListBloc(
-                ContactRepository()), //..add(ContactListGet()),
+            create: (context) => ContactsListBloc(ContactRepository())
+              ..add(ContactListGet(false)),
           ),
           BlocProvider<ContactFormBloc>(
             create: (context) => ContactFormBloc(ContactRepository()),

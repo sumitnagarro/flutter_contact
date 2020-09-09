@@ -8,7 +8,9 @@ import 'package:flutter_contact/views/widgets/user_image.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ContactDetail extends StatefulWidget {
-  ContactDetail({Key key, int id}) : super(key: key);
+  ContactDetail({Key key, this.fromFavourite}) : super(key: key);
+
+  final bool fromFavourite;
 
   @override
   _ContactDetailState createState() => _ContactDetailState();
@@ -85,7 +87,10 @@ class _ContactDetailState extends State<ContactDetail> {
             child: SingleChildScrollView(
               child: BlocListener<ContactFormBloc, ContactFormState>(
                 listener: (context, state) {
-                  contactListBloc.add(ContactListGet());
+                  bool aa = widget.fromFavourite;
+                  print(
+                      '-------------------I am widget from fav value : $aa -------------------------');
+                  contactListBloc.add(ContactListGet(widget.fromFavourite));
                 },
                 child: BlocBuilder<ContactFormBloc, ContactFormState>(
                     builder: (context, state) {
@@ -191,7 +196,8 @@ class _ContactDetailState extends State<ContactDetail> {
                       child: ErrorPage(
                         buttonText: 'Retry',
                         function: () {
-                          contactListBloc.add(ContactListGet());
+                          contactListBloc
+                              .add(ContactListGet(widget.fromFavourite));
                         },
                         message: 'Something went wrong',
                       ),

@@ -25,17 +25,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final ContactRepository contactRepository = ContactRepository();
   _ContactFormBloc.ContactFormBloc userFormBloc;
   ContactsListBloc contactsListBloc;
-  getsetData() async {
-    final contactBloc = context.bloc<ContactsListBloc>();
-    contactBloc.add(ContactListGet());
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getsetData();
-  }
-
   void addContact() {
     Navigator.of(context).push(
       MaterialPageRoute<ContactDetail>(
@@ -48,7 +37,9 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               BlocProvider<ContactsListBloc>.value(value: contactsListBloc),
             ],
-            child: ContactDetail(),
+            child: ContactDetail(
+              fromFavourite: false,
+            ),
           );
         },
       ),
@@ -71,21 +62,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
           if (state is ContactsLoadSuccess) {
             return ContactList(
-                userFormBloc: userFormBloc,
-                contactsListBloc: contactsListBloc,
-                contacts: state.contacts);
-          }
-          if (state is ContactsFavouriteLoadSuccess) {
-            return ContactList(
-                userFormBloc: userFormBloc,
-                contactsListBloc: contactsListBloc,
-                contacts: state.contacts);
+              userFormBloc: userFormBloc,
+              contactsListBloc: contactsListBloc,
+              contacts: state.contacts,
+              fromFavourite: false,
+            );
           } else {
             return Center(
               child: ErrorPage(
                 buttonText: 'Retry',
                 function: () {
-                  contactsListBloc.add(ContactListGet());
+                  contactsListBloc.add(ContactListGet(false));
                 },
                 message: 'Something went wrong',
               ),
