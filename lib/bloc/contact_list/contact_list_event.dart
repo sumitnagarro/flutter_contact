@@ -21,6 +21,8 @@ class ContactListGet extends ContactsEvent {
 
 class ContactLoadSuccess extends ContactsEvent {}
 
+class ContactLoadFavourites extends ContactsEvent {}
+
 class ContactAdded extends ContactsEvent {
   final Contact contact;
   const ContactAdded(this.contact);
@@ -34,6 +36,8 @@ class ContactAdded extends ContactsEvent {
 
 class ContactUpdated extends ContactsEvent {
   final Contact contact;
+  //final bool favouritePage;
+  //const ContactUpdated(this.contact, this.favouritePage);
   const ContactUpdated(this.contact);
 
   @override

@@ -45,14 +45,12 @@ class ContactFormBloc extends Bloc<ContactFormEvent, ContactFormState> {
       } catch (e) {
         yield Error(errorMessage: e.toString());
       }
+    } else if (event is PickContactImage) {
+      try {
+        yield Loaded(contact: event.contact);
+      } catch (e) {
+        yield Error(errorMessage: e.toString());
+      }
     }
-
-    //else if (event is PickContactImage) {
-    //   try {
-    //     await contactsRepository.updateContact(event.contact);
-    //     yield Success(successMessage: event.contact.name + ' updated');
-    //   } catch (e) {
-    //     yield Error(errorMessage: e.toString());
-    //   }
   }
 }

@@ -17,6 +17,8 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
       yield* _mapContactsLoadingState();
     } else if (event is ContactsLoadSuccess) {
       yield* _mapContactsLoadedToState();
+    } else if (event is ContactLoadFavourites) {
+      yield* _mapContactsFavouriteLoadedToState();
     } else if (event is ContactAdded) {
       yield* _mapContactAddedToState(event);
     } else if (event is ContactUpdated) {
@@ -53,6 +55,18 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
     }
   }
 
+  Stream<ContactsState> _mapContactsFavouriteLoadedToState() async* {
+    try {
+      final contacts = await this.contactsRepository.favouriteContacts();
+      yield ContactsLoadSuccess(
+        //contacts.map(Contact.fromEntity).toList(),
+        contacts,
+      );
+    } catch (_) {
+      yield ContactsLoadFailure();
+    }
+  }
+
   Stream<ContactsState> _mapContactAddedToState(ContactAdded event) async* {
     yield ContactLoadInProgress();
     try {
@@ -71,7 +85,11 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
     yield ContactLoadInProgress();
     try {
       await this.contactsRepository.updateContactFavourite(event.contact);
+      // final contacts = event.favouritePage
+      //     ? await this.contactsRepository.favouriteContacts()
+      //     : await this.contactsRepository.contacts();
       final contacts = await this.contactsRepository.contacts();
+
       yield ContactsLoadSuccess(
         contacts,
       );
@@ -104,11 +122,5 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
     } catch (_) {
       yield ContactsLoadFailure();
     }
-  }
-
-  Future _saveContacts(List<Contact> contacts) {
-    // return contactsRepository.insertContact(
-    //   contacts.map((contact) => contact.toEntity()).toList(),
-    // );
   }
 }

@@ -12,16 +12,16 @@ import 'widgets/contact_item.dart';
 import 'package:flutter_contact/bloc/contact_form/bloc.dart'
     as _ContactFormBloc;
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class FavouriteContacts extends StatefulWidget {
+  FavouriteContacts({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _FavouriteContactsState createState() => _FavouriteContactsState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _FavouriteContactsState extends State<FavouriteContacts> {
   final ContactRepository contactRepository = ContactRepository();
   _ContactFormBloc.ContactFormBloc userFormBloc;
   ContactsListBloc contactsListBloc;
@@ -68,13 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
           if (state is ContactLoadInProgress) {
             return CircularProgressIndicator();
           }
-
-          if (state is ContactsLoadSuccess) {
-            return ContactList(
-                userFormBloc: userFormBloc,
-                contactsListBloc: contactsListBloc,
-                contacts: state.contacts);
-          }
           if (state is ContactsFavouriteLoadSuccess) {
             return ContactList(
                 userFormBloc: userFormBloc,
@@ -85,18 +78,13 @@ class _MyHomePageState extends State<MyHomePage> {
               child: ErrorPage(
                 buttonText: 'Retry',
                 function: () {
-                  contactsListBloc.add(ContactListGet());
+                  contactsListBloc.add(ContactLoadFavourites());
                 },
                 message: 'Something went wrong',
               ),
             );
           }
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: addContact,
-        tooltip: 'Add new contact',
-        child: Icon(Icons.add),
       ),
       drawer: AppDrawer(
         contactsListBloc: contactsListBloc,

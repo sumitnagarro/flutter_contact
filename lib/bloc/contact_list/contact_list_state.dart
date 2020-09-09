@@ -22,4 +22,16 @@ class ContactsLoadSuccess extends ContactsState {
   String toString() => 'ContactsLoadSuccess {contacts: $contacts}';
 }
 
+class ContactsFavouriteLoadSuccess extends ContactsState {
+  final List<Contact> contacts;
+
+  const ContactsFavouriteLoadSuccess([this.contacts = const []]);
+
+  @override
+  List<Object> get props => [contacts];
+
+  @override
+  String toString() => 'ContactsLoadSuccess {contacts: $contacts}';
+}
+
 class ContactsLoadFailure extends ContactsState {}

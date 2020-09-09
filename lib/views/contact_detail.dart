@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_contact/bloc/contact_form/bloc.dart';
 import 'package:flutter_contact/bloc/contact_list/bloc.dart';
 import 'package:flutter_contact/models/contact.dart';
+import 'package:flutter_contact/views/widgets/error_page.dart';
 import 'package:flutter_contact/views/widgets/user_image.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 class ContactDetail extends StatefulWidget {
   ContactDetail({Key key, int id}) : super(key: key);
@@ -22,9 +22,6 @@ class _ContactDetailState extends State<ContactDetail> {
   ContactsListBloc contactListBloc;
 
   ContactFormBloc contactFormBloc;
-
-  //Picking image
-  File _image;
   final picker = ImagePicker();
   String path;
   PickedFile imagePicked;
@@ -61,7 +58,6 @@ class _ContactDetailState extends State<ContactDetail> {
 
     setState(() {
       path = imagePicked.path;
-      _image = File(imagePicked.path);
     });
   }
 
@@ -94,25 +90,27 @@ class _ContactDetailState extends State<ContactDetail> {
                 child: BlocBuilder<ContactFormBloc, ContactFormState>(
                     builder: (context, state) {
                   if (state is Loaded) {
-                    Contact contact = state.contact?.contactId == null
-                        ? Contact()
-                        : state.contact;
-
+                    Contact contact = state.contact;
+                    path = contact.image;
                     return Container(
                       padding: EdgeInsets.all(10),
                       child: Column(
                         children: <Widget>[
                           GestureDetector(
                             child: Center(
-                                child: Hero(
-                              tag: '${contact.contactId}__heroTag',
-                              child: UserImage(
-                                contact: contact,
-                                radius: 100,
+                              child: Hero(
+                                tag: '${contact.contactId}__heroTag',
+                                child: UserImage(
+                                  contact: contact,
+                                  radius: 100,
+                                ),
                               ),
-                            )),
+                            ),
                             onTap: () async {
-                              getImage(context);
+                              await getImage(context);
+                              contact.image = path;
+                              contactFormBloc
+                                  .add(PickContactImage(contact: contact));
                             },
                           ),
                           TextFormField(
@@ -189,9 +187,19 @@ class _ContactDetailState extends State<ContactDetail> {
                     );
                   }
                   if (state is Error) {
-                    return error(state.message);
+                    return Center(
+                      child: ErrorPage(
+                        buttonText: 'Retry',
+                        function: () {
+                          contactListBloc.add(ContactListGet());
+                        },
+                        message: 'Something went wrong',
+                      ),
+                    );
                   }
-                  return loading();
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
                 }),
               ),
             ),
@@ -199,13 +207,5 @@ class _ContactDetailState extends State<ContactDetail> {
         ),
       ),
     );
-  }
-
-  Widget error(String message) {
-    return Text('Error happed $message');
-  }
-
-  Widget loading() {
-    return CircularProgressIndicator();
   }
 }

@@ -58,6 +58,21 @@ class ContactRepository {
     return contacts;
   }
 
+  Future<List<Contact>> favouriteContacts() async {
+    // Get a reference to the database.
+    final db = await databaseHelper.db;
+    final isFav = 1;
+    // Query the table for all The Contacts.
+    var result = await db
+        .query(kContactTableName, where: 'isFavorite = ?', whereArgs: [isFav]);
+
+    List<Contact> contacts = result.isNotEmpty
+        ? result.map((user) => Contact.fromJson(user)).toList()
+        : [];
+    //Return contacts in the list
+    return contacts;
+  }
+
   Future<void> updateContact(Contact contact) async {
     // Get a reference to the database.
     Database db = await databaseHelper.db;

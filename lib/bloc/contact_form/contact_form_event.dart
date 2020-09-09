@@ -26,4 +26,6 @@ class DeleteContact extends ContactFormEvent {
   DeleteContact({@required this.contact}) : super(contact: contact);
 }
 
-class PickContactImage extends ContactFormEvent {}
+class PickContactImage extends ContactFormEvent {
+  PickContactImage({@required Contact contact}) : super(contact: contact);
+}
