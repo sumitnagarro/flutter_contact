@@ -31,7 +31,7 @@ class _FavouriteContactsState extends State<FavouriteContacts> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Fav'),
+          title: Text('Favourite Contact'),
         ),
         body: BlocBuilder<ContactsListBloc, ContactsState>(
           builder: (context, state) {

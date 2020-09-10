@@ -50,6 +50,7 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
   Stream<ContactsState> _mapContactsLoadedToState() async* {
     try {
       final contacts = await this.contactsRepository.contacts();
+
       yield ContactsLoadSuccess(contacts);
     } catch (_) {
       yield ContactsLoadFailure();
@@ -59,6 +60,7 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
   Stream<ContactsState> _mapContactsFavouriteLoadedToState() async* {
     try {
       final contacts = await this.contactsRepository.favouriteContacts();
+
       yield ContactsFavouriteLoadSuccess(contacts);
     } catch (_) {
       yield ContactsLoadFailure();
@@ -70,6 +72,7 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
     try {
       await this.contactsRepository.insertContact(event.contact);
       final contacts = await this.contactsRepository.contacts();
+
       yield ContactsLoadSuccess(
         contacts,
       );
@@ -86,7 +89,6 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
       final contacts = event.fromFavourite
           ? await this.contactsRepository.favouriteContacts()
           : await this.contactsRepository.contacts();
-      //final contacts = await this.contactsRepository.contacts();
 
       yield event.fromFavourite
           ? ContactsFavouriteLoadSuccess(contacts)
@@ -103,6 +105,7 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
     try {
       await this.contactsRepository.deleteContact(event.contact.contactId);
       final contacts = await this.contactsRepository.contacts();
+
       yield ContactsLoadSuccess(
         contacts,
       );
@@ -116,6 +119,7 @@ class ContactsListBloc extends Bloc<ContactsEvent, ContactsState> {
     try {
       await this.contactsRepository.updateContactFavourite(event.contact);
       final contacts = await this.contactsRepository.contacts();
+
       yield ContactsLoadSuccess(
         contacts,
       );

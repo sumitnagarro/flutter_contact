@@ -55,6 +55,7 @@ class ContactRepository {
     List<Contact> contacts = maps.isNotEmpty
         ? maps.map((item) => Contact.fromJson(item)).toList()
         : [];
+    contacts.sort((a, b) => a.name.compareTo(b.name));
     return contacts;
   }
 
@@ -69,6 +70,7 @@ class ContactRepository {
     List<Contact> contacts = result.isNotEmpty
         ? result.map((user) => Contact.fromJson(user)).toList()
         : [];
+    contacts.sort((a, b) => a.name.compareTo(b.name));
     //Return contacts in the list
     return contacts;
   }
