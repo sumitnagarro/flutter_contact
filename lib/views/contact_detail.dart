@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_contact/bloc/contact_form/bloc.dart';
 import 'package:flutter_contact/bloc/contact_list/bloc.dart';
 import 'package:flutter_contact/models/contact.dart';
+import 'package:flutter_contact/utility/helper.dart';
 import 'package:flutter_contact/views/widgets/error_page.dart';
 import 'package:flutter_contact/views/widgets/user_image.dart';
-import 'package:image_picker/image_picker.dart';
 
 class ContactDetail extends StatefulWidget {
   ContactDetail({Key key, this.fromFavourite}) : super(key: key);
@@ -24,44 +24,8 @@ class _ContactDetailState extends State<ContactDetail> {
   ContactsListBloc contactListBloc;
 
   ContactFormBloc contactFormBloc;
-  final picker = ImagePicker();
-  String path;
-  PickedFile imagePicked;
-  Future getImage(BuildContext ctx) async {
-    ImageSource source;
-    await showDialog(
-        context: ctx,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: new Text("Pick Image"),
-            content: new Text("Take/Browse photo of person"),
-            actions: <Widget>[
-              // usually buttons at the bottom of the dialog
-              new FlatButton(
-                child: new Text("Camera"),
-                onPressed: () {
-                  source = ImageSource.camera;
-                  Navigator.of(context).pop();
-                },
-              ),
-              new FlatButton(
-                child: new Text("Gallary"),
-                onPressed: () {
-                  source = ImageSource.gallery;
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        });
 
-    if (source == null) return;
-    imagePicked = await picker.getImage(source: source);
-
-    setState(() {
-      path = imagePicked.path;
-    });
-  }
+  bool isFav;
 
   @override
   Widget build(BuildContext context) {
@@ -87,16 +51,14 @@ class _ContactDetailState extends State<ContactDetail> {
             child: SingleChildScrollView(
               child: BlocListener<ContactFormBloc, ContactFormState>(
                 listener: (context, state) {
-                  bool aa = widget.fromFavourite;
-                  print(
-                      '-------------------I am widget from fav value : $aa -------------------------');
                   contactListBloc.add(ContactListGet(widget.fromFavourite));
                 },
                 child: BlocBuilder<ContactFormBloc, ContactFormState>(
                     builder: (context, state) {
                   if (state is Loaded) {
                     Contact contact = state.contact;
-                    path = contact.image;
+                    isFav = contact.isFavorite == 1;
+
                     return Container(
                       padding: EdgeInsets.all(10),
                       child: Column(
@@ -112,8 +74,11 @@ class _ContactDetailState extends State<ContactDetail> {
                               ),
                             ),
                             onTap: () async {
-                              await getImage(context);
-                              contact.image = path;
+                              final imagePath =
+                                  await Helper().getImage(context);
+                              contact.image = imagePath ?? contact.image;
+                              // await getImage(context);
+                              // contact.image = path;
                               contactFormBloc
                                   .add(PickContactImage(contact: contact));
                             },
@@ -159,15 +124,23 @@ class _ContactDetailState extends State<ContactDetail> {
                             },
                             validator: (value) {
                               if (value.length < 1) {
-                                return 'Landline cannot be empty';
+                                return 'Landline number cannot be empty';
                               }
                               return null;
                             },
                           ),
+                          CheckboxListTile(
+                              title: Text('Favourite'),
+                              value: isFav,
+                              onChanged: (value) {
+                                setState(() {
+                                  isFav = value;
+                                });
+                                contact?.isFavorite = isFav ? 1 : 0;
+                              }),
                           RaisedButton(
                             child: Text('Save'),
                             onPressed: () {
-                              contact?.image = path ?? contact.image;
                               if (_formKey.currentState.validate()) {
                                 contactFormBloc.add(contact?.contactId == null
                                     ? CreateContact(contact: contact)
@@ -176,35 +149,30 @@ class _ContactDetailState extends State<ContactDetail> {
                               Navigator.pop(context);
                             },
                           ),
-                          RaisedButton(
-                            child: Text('Delete'),
-                            onPressed: () {
-                              if (_formKey.currentState.validate()) {
-                                contactFormBloc
-                                    .add(DeleteContact(contact: contact));
-                                contactFormBloc.add(BackEvent());
-                              }
-                              Navigator.pop(context);
-                            },
-                          ),
+                          getDeleteButton(contact),
                         ],
                       ),
                     );
                   }
                   if (state is Error) {
-                    return Center(
-                      child: ErrorPage(
-                        buttonText: 'Retry',
-                        function: () {
-                          contactListBloc
-                              .add(ContactListGet(widget.fromFavourite));
-                        },
-                        message: 'Something went wrong',
+                    return Padding(
+                      padding: const EdgeInsets.all(100.0),
+                      child: Center(
+                        child: ErrorPage(
+                          buttonText: 'Retry',
+                          function: () {
+                            contactListBloc
+                                .add(ContactListGet(widget.fromFavourite));
+                          },
+                          message: 'Something went wrong',
+                        ),
                       ),
                     );
                   }
-                  return Center(
-                    child: CircularProgressIndicator(),
+                  return Container(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
                   );
                 }),
               ),
@@ -213,5 +181,20 @@ class _ContactDetailState extends State<ContactDetail> {
         ),
       ),
     );
+  }
+
+  Widget getDeleteButton(Contact contact) {
+    return contact?.contactId != null
+        ? RaisedButton(
+            child: Text('Delete'),
+            onPressed: () {
+              if (_formKey.currentState.validate()) {
+                contactFormBloc.add(DeleteContact(contact: contact));
+                contactFormBloc.add(BackEvent());
+              }
+              Navigator.pop(context);
+            },
+          )
+        : SizedBox.shrink();
   }
 }

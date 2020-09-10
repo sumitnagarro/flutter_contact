@@ -8,7 +8,6 @@ import 'package:flutter_contact/views/widgets/app_drawer.dart';
 import 'package:flutter_contact/views/widgets/contact_list.dart';
 import 'package:flutter_contact/views/widgets/error_page.dart';
 import 'contact_detail.dart';
-import 'widgets/contact_item.dart';
 import 'package:flutter_contact/bloc/contact_form/bloc.dart'
     as _ContactFormBloc;
 
